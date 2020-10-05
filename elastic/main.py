@@ -1,8 +1,10 @@
+import numpy as np
 
 def main():
-    print("hello world")
+    #print("llo world")
+
     f=open("beowulf.txt","rb")
-    num = f.read()
+    num = np.array(f.read(), dtype=np.uint16)
     print(num)
 
 if(__name__ == "__main__"):

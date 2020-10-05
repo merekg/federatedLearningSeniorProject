@@ -6,6 +6,10 @@
 import queue
 import time
 import threading
+import sys
+# Add the folders above
+sys.path.append('../')
+import node_client.py
 
 class Node:
 
@@ -18,6 +22,7 @@ class Node:
 
     # Constructor
     def __init__(self):
+
         # Get the device's IP address.
         f = open("/opt/cec/ip.txt", "r")
         ipAddr = f.read()
