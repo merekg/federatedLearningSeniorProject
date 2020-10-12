@@ -7,9 +7,13 @@ import queue
 import time
 import threading
 import sys
+import numpy as np
 # Add the folders above
 sys.path.append('../')
 #import node_client.py
+
+# The max number of devices in the network
+MAX_DEVICES = 8
 
 class Node:
 
@@ -39,8 +43,11 @@ class Node:
         self._sendingThread.start()
         self._receivingThread = threading.Thread(target=Node.receivingLoop, daemon=True)
         self._receivingThread.start()
+        print("the main thread continues")
 
-        time.sleep(40)
+        # The _partitions object keeps track of the partitions of the matrix.
+        # Each element in the array corresponds to the size of the partition
+        self._partitions = np.zeros(MAX_DEVICES) - 1
 
     def sendingLoop():
         while(True):
@@ -54,21 +61,36 @@ class Node:
 
     # This script will take a matrix and divide it into n parts.
     # It will make the parts as evenly sized as possible while still maintaining the rows and columns.
-    def matrixSplit(matrix, n):
+    def matrixSplit(self, n):
 
         diff = 0
-        fraction = len(matrix)/n
+        fraction = len(self._matrix)/n
         for i in range(0,n):
             split  = round(fraction + diff)
-            print(split)
+            self._partitions[i] = split
             diff = diff + fraction - split
-            print(diff)
+
 
     def addMatrix(self, matrix):
-
         self._matrix = matrix
 
 
+    def distributeData(matrix):
+
+        # This matrix is how we will spread the data, which has 3 parts, onto six machines
+        dist_mat = [[1, 0, 0, 1, 1, 1],
+                    [0, 1, 0, 1, 2, 4],
+                    [0, 0, 1, 1, 3, 9]]
+
+        # For each machine in the system, send them their data, which is (matrix*dist_mat)[i] 
+        # where i is the index of the machine
+        
+        result = np.matmul(matrix, dist_mat)
+        for i in range(0, MAX_DEVICES)):
+            # send to device i result[i]
+
 if (__name__ == "__main__"):
     node = Node()
+    node.addMatrix(np.random.rand(20,20))
+    node.matrixSplit(100)
 
