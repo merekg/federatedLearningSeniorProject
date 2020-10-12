@@ -18,12 +18,12 @@ isImported = True
 def client(wout,fn,host):
     
     #w = wout
-    data = types.SimpleNamespace(w=wout,fn=fn) 
+    data = types.SimpleNamespace(w=wout,fn=fn) 		# Creates a new class 
     keep_running = True
-    datasend = pickle.dumps(data)    
+    datasend = pickle.dumps(data)   			# Searalizes the object 'data' and returns the bytes of the object
     port = 65432    
     
-    sel = selectors.DefaultSelector()
+    sel = selectors.DefaultSelector()			# Waits for I/O readiness on file objects
     
     server_addr = (host, port)
     print('sending to Agg')
