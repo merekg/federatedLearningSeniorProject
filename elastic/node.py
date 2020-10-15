@@ -8,6 +8,8 @@ import time
 import threading
 import sys
 import numpy as np
+from client import *
+from server import *
 # Add the folders above
 sys.path.append('../')
 #import node_client.py
@@ -37,8 +39,8 @@ class Node:
 
         # This queue holds information that we need to send
         self._sendingQueue = queue.Queue(maxsize = 40)
-        self._sendingQueue.put("first message to be sent")
-        self._sendingQueue.put("second message to be sent")
+        self._sendingQueue.put(("first message to be sent","fn"))
+        self._sendingQueue.put(("second message to be sent","fn"))
 
         # Threads for sending and receiving information from the other nodes
         self._sendingThread = threading.Thread(target=self.sendingLoop, daemon=True)
@@ -57,12 +59,16 @@ class Node:
             # if there is something to be sent, then send it
             if(not self._sendingQueue.empty()):
                 print("sending")
-                print(self._sendingQueue.get())
+                tup = self._sendingQueue.get()
+                client(tup[0],tup[1], "1000176")
             time.sleep(3)
 
     def receivingLoop(self):
         while(True):
             print("receiving")
+            item = server("")
+            print("this is what i got:")
+            print(item)
             time.sleep(3)
 
     # This script will take a matrix and divide it into n parts.
