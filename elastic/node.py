@@ -17,9 +17,6 @@ MAX_DEVICES = 8
 
 class Node:
 
-    # queue of all things that need to be sent
-    _sendingQueue = queue.SimpleQueue()
-
     # Constructor
     def __init__(self):
 
@@ -38,23 +35,32 @@ class Node:
         if(self._ipAddr == 1000219):
             self._nodeID = 2;
 
+        # This queue holds information that we need to send
+        self._sendingQueue = queue.Queue(maxsize = 40)
+        self._sendingQueue.put("first message to be sent")
+        self._sendingQueue.put("second message to be sent")
+
         # Threads for sending and receiving information from the other nodes
-        self._sendingThread = threading.Thread(target=Node.sendingLoop, daemon=True)
+        self._sendingThread = threading.Thread(target=self.sendingLoop, daemon=True)
         self._sendingThread.start()
-        self._receivingThread = threading.Thread(target=Node.receivingLoop, daemon=True)
+        self._receivingThread = threading.Thread(target=self.receivingLoop, daemon=True)
         self._receivingThread.start()
         print("the main thread continues")
 
         # The _partitions object keeps track of the partitions of the matrix.
         # Each element in the array corresponds to the size of the partition
-        self._partitions = np.zeros(MAX_DEVICES) - 1
+        self._partitions = []
+        time.sleep(10)
 
-    def sendingLoop():
+    def sendingLoop(self):
         while(True):
-            print("sending")
+            # if there is something to be sent, then send it
+            if(not self._sendingQueue.empty()):
+                print("sending")
+                print(self._sendingQueue.get())
             time.sleep(3)
 
-    def receivingLoop():
+    def receivingLoop(self):
         while(True):
             print("receiving")
             time.sleep(3)
@@ -65,9 +71,10 @@ class Node:
 
         diff = 0
         fraction = len(self._matrix)/n
+        self._partitions = []
         for i in range(0,n):
             split  = round(fraction + diff)
-            self._partitions[i] = split
+            self._partitions.append(split)
             diff = diff + fraction - split
 
 
@@ -86,8 +93,9 @@ class Node:
         # where i is the index of the machine
         
         result = np.matmul(matrix, dist_mat)
-        for i in range(0, MAX_DEVICES)):
+        for i in range(0, MAX_DEVICES):
             # send to device i result[i]
+            i;
 
 if (__name__ == "__main__"):
     node = Node()
