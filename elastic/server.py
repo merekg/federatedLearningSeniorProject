@@ -29,7 +29,7 @@ def server(host):
         print('Received Data from Agg')
         conn.close
         
-        if len(rec.w) != 0:
+        if len(rec) != 0:
             keep_running = False
             
     return rec

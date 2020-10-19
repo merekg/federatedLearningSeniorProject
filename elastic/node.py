@@ -29,6 +29,9 @@ class Node:
         # Get rid of the periods, cast to int
         self._ipAddr = int(ipAddr.replace('.', ''))
 
+        # Set a variable that will keep track of whether or not we have work to do
+        self._matrixReady = False
+
         # Determine the node index based on the ip address.
         if(self._ipAddr == 100097):
             self._nodeID = 0; # desktop
@@ -49,6 +52,10 @@ class Node:
         self._receivingThread.start()
         print("the main thread continues")
 
+        # Thread for doing the matrix multiplication work
+        self._multThread = threading.Thread(target=self.multLoop, daemon=True)
+        self._multThread.start()
+
         # The _partitions object keeps track of the partitions of the matrix.
         # Each element in the array corresponds to the size of the partition
         self._partitions = []
@@ -66,10 +73,31 @@ class Node:
     def receivingLoop(self):
         while(True):
             print("receiving")
-            item = server("")
-            print("this is what i got:")
+            item = server("10.0.0.159")
+            print("Updating based on recieved information...")
+
+            # For now, just assume that the first column is the x array and the rest is the matrix
+            print("Shape of received item:")
+            print(np.array(item).shape)
+            print("Item:")
             print(item)
+            self._x = item[:,0]
+            self._matrix = item[:,1:]
+            self._matrixReady = True
             time.sleep(3)
+
+
+    def multLoop(self):
+        while(True):
+            
+            # Wait until there is a matrix to be multiplied.
+            if(self._matrixReady):
+
+                # Compute the matrix multiplication, then add it to the sending queue
+                self._sendingQueue.put(np.matmul(self._x,self._matrix))
+                print("Matrix multiplication complete.")
+            else:
+                time.sleep(1)
 
     # This script will take a matrix and divide it into n parts.
     # It will make the parts as evenly sized as possible while still maintaining the rows and columns.
