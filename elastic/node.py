@@ -52,7 +52,6 @@ class Node:
         # The _partitions object keeps track of the partitions of the matrix.
         # Each element in the array corresponds to the size of the partition
         self._partitions = []
-        time.sleep(10)
 
     def sendingLoop(self):
         while(True):
