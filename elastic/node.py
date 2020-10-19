@@ -59,6 +59,7 @@ class Node:
         # The _partitions object keeps track of the partitions of the matrix.
         # Each element in the array corresponds to the size of the partition
         self._partitions = []
+        time.sleep(20)
 
     def sendingLoop(self):
         while(True):
@@ -85,7 +86,6 @@ class Node:
             self._matrixReady = True
             time.sleep(3)
 
-
     def multLoop(self):
         while(True):
             
@@ -95,6 +95,7 @@ class Node:
                 # Compute the matrix multiplication, then add it to the sending queue
                 self._sendingQueue.put(np.matmul(self._x,self._matrix))
                 print("Matrix multiplication complete.")
+                self._matrixReady = False
             else:
                 time.sleep(1)
 
