@@ -46,11 +46,11 @@ class Node:
         self._sendingQueue.put(("second message to be sent","fn"))
 
         # Threads for sending and receiving information from the other nodes
-        self._sendingThread = threading.Thread(target=self.sendingLoop, daemon=True)
-        self._sendingThread.start()
-        self._receivingThread = threading.Thread(target=self.receivingLoop, daemon=True)
-        self._receivingThread.start()
-        print("the main thread continues")
+        #self._sendingThread = threading.Thread(target=self.sendingLoop, daemon=True)
+        #self._sendingThread.start()
+        #self._receivingThread = threading.Thread(target=self.receivingLoop, daemon=True)
+        #self._receivingThread.start()
+        #print("the main thread continues")
 
         # Thread for doing the matrix multiplication work
         self._multThread = threading.Thread(target=self.multLoop, daemon=True)
@@ -59,7 +59,6 @@ class Node:
         # The _partitions object keeps track of the partitions of the matrix.
         # Each element in the array corresponds to the size of the partition
         self._partitions = []
-        time.sleep(20)
 
     def sendingLoop(self):
         while(True):
