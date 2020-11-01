@@ -26,7 +26,6 @@ def client(wout,fn,host):
     sel = selectors.DefaultSelector()			# Waits for I/O readiness on file objects
     
     server_addr = (host, port)
-    print('sending to Agg')
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect(server_addr) #.connect_ex()
     sock.setblocking(0) # vs False

@@ -42,15 +42,12 @@ class Node:
 
         # This queue holds information that we need to send
         self._sendingQueue = queue.Queue(maxsize = 40)
-        self._sendingQueue.put(("first message to be sent","fn"))
-        self._sendingQueue.put(("second message to be sent","fn"))
 
         # Threads for sending and receiving information from the other nodes
         self._sendingThread = threading.Thread(target=self.sendingLoop, daemon=True)
         self._sendingThread.start()
         self._receivingThread = threading.Thread(target=self.receivingLoop, daemon=True)
         self._receivingThread.start()
-        print("the main thread continues")
 
         # Thread for doing the matrix multiplication work
         self._multThread = threading.Thread(target=self.multLoop, daemon=True)
@@ -65,14 +62,13 @@ class Node:
         while(True):
             # if there is something to be sent, then send it
             if(not self._sendingQueue.empty()):
-                print("sending")
+                print("Sending...")
                 tup = self._sendingQueue.get()
-                client(tup[0],tup[1], "1000176")
+                client(tup[0],tup[1], "10.0.0.97")
             time.sleep(3)
 
     def receivingLoop(self):
         while(True):
-            print("receiving")
             item = server("10.0.0.159")
             print("Updating based on recieved information...")
 

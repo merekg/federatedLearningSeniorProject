@@ -26,7 +26,7 @@ def server(host):
                 break                
         print(len(recvd))
         rec = pickle.loads(recvd)
-        print('Received Data from Agg')
+        print('Received Data from master node')
         conn.close
         
         if len(rec) != 0:
