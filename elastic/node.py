@@ -24,21 +24,21 @@ class Node:
 
         # Get the device's IP address.
         f = open("/opt/cec/ip.txt", "r")
-        ipAddr = f.read()
+        self._ipAddr = f.read().replace('\n','')
         
         # Get rid of the periods, cast to int
-        self._ipAddr = int(ipAddr.replace('.', ''))
+        #self._ipAddr = int(ipAddr.replace('.', ''))
 
         # Set a variable that will keep track of whether or not we have work to do
         self._matrixReady = False
 
         # Determine the node index based on the ip address.
-        if(self._ipAddr == 100097):
-            self._nodeID = 0; # desktop
-        if(self._ipAddr == 1000236):
-            self._nodeID = 1;
-        if(self._ipAddr == 1000219):
-            self._nodeID = 2;
+        #if(self._ipAddr == 100097):
+            #self._nodeID = 0; # desktop
+        #if(self._ipAddr == 1000236):
+            #self._nodeID = 1;
+        #if(self._ipAddr == 1000219):
+            #self._nodeID = 2;
 
         # This queue holds information that we need to send
         self._sendingQueue = queue.Queue(maxsize = 40)
@@ -69,7 +69,7 @@ class Node:
 
     def receivingLoop(self):
         while(True):
-            item = server("10.0.0.159")
+            item = server(str(self._ipAddr))
             print("Updating based on recieved information...")
 
             # For now, just assume that the first column is the x array and the rest is the matrix
