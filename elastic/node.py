@@ -57,7 +57,7 @@ class Node:
         self._multThread.start()
 
         # The _partitions object keeps track of the partitions of the matrix.
-        # Each element in the array corresponds to the size of the partition
+        # Each element in the array corresponds to the index the partition ends on
         self._partitions = []
 
     def sendingLoop(self):
@@ -110,17 +110,69 @@ class Node:
             self._partitions.append(split)
             diff = diff + fraction - split
 
+        part = np.zeros(n)
+        for i in range(0,n):
+            part[i] = np.sum(self._partitions[:i+1])
+
+        self._partitions = np.array(part, dtype=np.uint)
+        newMatrix = np.array([], dtype=object)
+        for i in range(0,len(self._partitions)):
+            if(i==0):
+                #print("index: " +str(self._partitions[i]))
+                #print("sub matrix: " +str(self._matrix[:self._partitions[i]]))
+                np.append(newMatrix, self._matrix[:self._partitions[i]])
+            else:
+                #print("index: " +str(self._partitions[i]))
+                #print("sub matrix: " +str(self._matrix[self._partitions[i-1]:self._partitions[i]]))
+                np.append(newMatrix, self._matrix[self._partitions[i-1]:self._partitions[i]])
+
+        print("newmatrix:")
+        print(newMatrix)
 
     def addMatrix(self, matrix):
         self._matrix = matrix
 
 
-    def distributeData(matrix):
+    # Matrix is the original data, partitioned into l partitions
+    # where l is the recovery threshold, ie minimum number of machines
+    # n is the number of machines to send to
+    def distributeData(self,matrix,n):
 
-        # This matrix is how we will spread the data, which has 3 parts, onto six machines
-        dist_mat = [[1, 0, 0, 1, 1, 1],
-                    [0, 1, 0, 1, 2, 4],
-                    [0, 0, 1, 1, 3, 9]]
+        l = len(matrix)
+
+        # this is the whole matrix, for up to 6 machines and up to a 
+        # recovery threshold of 6
+        # this variable is kept as a private for decoding later on
+        if(l == 1):
+            self._dist_mat = [1, 1, 1, 1, 1, 1]
+        elif(l == 2):
+            self._dist_mat = [[1, 0, 1, 1, 1, 1],
+                              [0, 1, 1, 2, 3, 4]]
+        elif(l == 3):
+            self._dist_mat = [[1, 0, 0, 1, 1, 1],
+                              [0, 1, 0, 1, 2, 4],
+                              [0, 0, 1, 1, 3, 9]]
+        elif(l == 4):
+            self._dist_mat = [[1, 0, 0, 0, 1, 1],
+                              [0, 1, 0, 0, 1, 2],
+                              [0, 0, 1, 0, 1, 3],
+                              [0, 0, 0, 1, 1, 4]]
+        elif(l == 5):
+            self._dist_mat = [[1, 0, 0, 0, 0, 1],
+                              [0, 1, 0, 0, 0, 2],
+                              [0, 0, 1, 0, 0, 3],
+                              [0, 0, 0, 1, 0, 4],
+                              [0, 0, 0, 0, 1, 5]]
+        elif(l == 6):
+            self._dist_mat = [[1, 0, 0, 0, 0, 0],
+                              [0, 1, 0, 0, 0, 0],
+                              [0, 0, 1, 0, 0, 0],
+                              [0, 0, 0, 1, 0, 0],
+                              [0, 0, 0, 0, 1, 0],
+                              [0, 0, 0, 0, 0, 1]]
+        else:
+            print("ERROR: Recovery threshold must be an integer between 1 and 6.")
+        
 
         # For each machine in the system, send them their data, which is (matrix*dist_mat)[i] 
         # where i is the index of the machine
@@ -129,6 +181,41 @@ class Node:
         for i in range(0, MAX_DEVICES):
             # send to device i result[i]
             i;
+
+    # This function isn't being used right now, but it may be in use for milestone 2
+    def generateMatrixOfRank(m,n,r,vals):
+        assert m >= r and n >= r
+        trans = False
+        if m > n: # more columns than rows I think is better
+            m, n = n, m
+            trans = True
+
+        get_vec = lambda: np.array([random.choice(vals) for i in range(n)])
+
+        vecs = []
+        n_rejects = 0
+
+        # fill in r linearly independent rows
+        while len(vecs) < r:
+            v = get_vec()
+            if np.linalg.matrix_rank(np.vstack(vecs + [v])) > len(vecs):
+                vecs.append(v)
+            else:
+                n_rejects += 1
+
+        # fill in the rest of the dependent rows
+        while len(vecs) < m:
+            v = get_vec()
+            if np.linalg.matrix_rank(np.vstack(vecs + [v])) > len(vecs):
+                n_rejects += 1
+                if n_rejects % 1000 == 0:
+                    print(n_rejects)
+            else:
+                vecs.append(v)
+
+        m = np.vstack(vecs)
+        return m.T if trans else m
+
 
 if (__name__ == "__main__"):
     node = Node()
