@@ -24,33 +24,30 @@ class Node:
 
         # Get the device's IP address.
         f = open("/opt/cec/ip.txt", "r")
-        ipAddr = f.read()
+        self._ipAddr = f.read().replace('\n','')
         
         # Get rid of the periods, cast to int
-        self._ipAddr = int(ipAddr.replace('.', ''))
+        #self._ipAddr = int(ipAddr.replace('.', ''))
 
         # Set a variable that will keep track of whether or not we have work to do
         self._matrixReady = False
 
         # Determine the node index based on the ip address.
-        if(self._ipAddr == 100097):
-            self._nodeID = 0; # desktop
-        if(self._ipAddr == 1000236):
-            self._nodeID = 1;
-        if(self._ipAddr == 1000219):
-            self._nodeID = 2;
+        #if(self._ipAddr == 100097):
+            #self._nodeID = 0; # desktop
+        #if(self._ipAddr == 1000236):
+            #self._nodeID = 1;
+        #if(self._ipAddr == 1000219):
+            #self._nodeID = 2;
 
         # This queue holds information that we need to send
         self._sendingQueue = queue.Queue(maxsize = 40)
-        self._sendingQueue.put(("first message to be sent","fn"))
-        self._sendingQueue.put(("second message to be sent","fn"))
 
         # Threads for sending and receiving information from the other nodes
-        #self._sendingThread = threading.Thread(target=self.sendingLoop, daemon=True)
-        #self._sendingThread.start()
-        #self._receivingThread = threading.Thread(target=self.receivingLoop, daemon=True)
-        #self._receivingThread.start()
-        #print("the main thread continues")
+        self._sendingThread = threading.Thread(target=self.sendingLoop, daemon=True)
+        self._sendingThread.start()
+        self._receivingThread = threading.Thread(target=self.receivingLoop, daemon=True)
+        self._receivingThread.start()
 
         # Thread for doing the matrix multiplication work
         self._multThread = threading.Thread(target=self.multLoop, daemon=True)
@@ -59,20 +56,20 @@ class Node:
         # The _partitions object keeps track of the partitions of the matrix.
         # Each element in the array corresponds to the index the partition ends on
         self._partitions = []
+        time.sleep(20)
 
     def sendingLoop(self):
         while(True):
             # if there is something to be sent, then send it
             if(not self._sendingQueue.empty()):
-                print("sending")
+                print("Sending...")
                 tup = self._sendingQueue.get()
-                client(tup[0],tup[1], "1000176")
+                client(tup[0],tup[1], "10.0.0.97")
             time.sleep(3)
 
     def receivingLoop(self):
         while(True):
-            print("receiving")
-            item = server("10.0.0.159")
+            item = server(str(self._ipAddr))
             print("Updating based on recieved information...")
 
             # For now, just assume that the first column is the x array and the rest is the matrix
