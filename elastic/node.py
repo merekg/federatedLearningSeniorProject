@@ -43,10 +43,13 @@ class Node:
         # This queue holds information that we need to send
         self._sendingQueue = queue.Queue(maxsize = 40)
 
+        # Signal a preempt
+        self._preempted = False;
+
         # Threads for sending and receiving information from the other nodes
-        self._sendingThread = threading.Thread(target=self.sendingLoop, daemon=True)
+        self._sendingThread = threading.Thread(target=self.sendingLoop, daemon=False)
         self._sendingThread.start()
-        self._receivingThread = threading.Thread(target=self.receivingLoop, daemon=True)
+        self._receivingThread = threading.Thread(target=self.receivingLoop, daemon=False)
         self._receivingThread.start()
 
         # Thread for doing the matrix multiplication work
@@ -56,18 +59,18 @@ class Node:
         # The _partitions object keeps track of the partitions of the matrix.
         # Each element in the array corresponds to the index the partition ends on
         self._partitions = []
-        time.sleep(20)
 
     def sendingLoop(self):
-        while(True):
+        while(not self._preempted):
             # if there is something to be sent, then send it
             if(not self._sendingQueue.empty()):
                 print("Sending...")
                 tup = self._sendingQueue.get()
                 client(tup[0],tup[1], "10.0.0.97")
-            time.sleep(3)
+            time.sleep(1)
 
     def receivingLoop(self):
+        # this thread stays alive the whole time, even if preempted. 
         while(True):
             item = server(str(self._ipAddr))
             print("Updating based on recieved information...")
@@ -80,10 +83,10 @@ class Node:
             self._x = item[:,0]
             self._matrix = item[:,1:]
             self._matrixReady = True
-            time.sleep(3)
+            time.sleep(1)
 
     def multLoop(self):
-        while(True):
+        while(not self._preempted):
             
             # Wait until there is a matrix to be multiplied.
             if(self._matrixReady):
@@ -137,39 +140,9 @@ class Node:
 
         l = len(matrix)
 
-        # this is the whole matrix, for up to 6 machines and up to a 
-        # recovery threshold of 6
-        # this variable is kept as a private for decoding later on
-        if(l == 1):
-            self._dist_mat = [1, 1, 1, 1, 1, 1]
-        elif(l == 2):
-            self._dist_mat = [[1, 0, 1, 1, 1, 1],
-                              [0, 1, 1, 2, 3, 4]]
-        elif(l == 3):
-            self._dist_mat = [[1, 0, 0, 1, 1, 1],
-                              [0, 1, 0, 1, 2, 4],
-                              [0, 0, 1, 1, 3, 9]]
-        elif(l == 4):
-            self._dist_mat = [[1, 0, 0, 0, 1, 1],
-                              [0, 1, 0, 0, 1, 2],
-                              [0, 0, 1, 0, 1, 3],
-                              [0, 0, 0, 1, 1, 4]]
-        elif(l == 5):
-            self._dist_mat = [[1, 0, 0, 0, 0, 1],
-                              [0, 1, 0, 0, 0, 2],
-                              [0, 0, 1, 0, 0, 3],
-                              [0, 0, 0, 1, 0, 4],
-                              [0, 0, 0, 0, 1, 5]]
-        elif(l == 6):
-            self._dist_mat = [[1, 0, 0, 0, 0, 0],
-                              [0, 1, 0, 0, 0, 0],
-                              [0, 0, 1, 0, 0, 0],
-                              [0, 0, 0, 1, 0, 0],
-                              [0, 0, 0, 0, 1, 0],
-                              [0, 0, 0, 0, 0, 1]]
-        else:
-            print("ERROR: Recovery threshold must be an integer between 1 and 6.")
-        
+        # generate a full rank matrix
+        # l should always be less than or equal to n
+        A = generateMatrixOfRank(l,n,l) 
 
         # For each machine in the system, send them their data, which is (matrix*dist_mat)[i] 
         # where i is the index of the machine
@@ -180,38 +153,35 @@ class Node:
             i;
 
     # This function isn't being used right now, but it may be in use for milestone 2
-    def generateMatrixOfRank(m,n,r,vals):
-        assert m >= r and n >= r
-        trans = False
-        if m > n: # more columns than rows I think is better
-            m, n = n, m
-            trans = True
+    def generateMatrixOfRank(self,rows,columns,r):
+        assert rows >= r and columns >= r
 
-        get_vec = lambda: np.array([random.choice(vals) for i in range(n)])
+        # this is a python do while
+        while(True):
 
-        vecs = []
-        n_rejects = 0
+            A = np.random.rand(rows,columns)
+            if(np.linalg.matrix_rank(A) == r):
+                break
 
-        # fill in r linearly independent rows
-        while len(vecs) < r:
-            v = get_vec()
-            if np.linalg.matrix_rank(np.vstack(vecs + [v])) > len(vecs):
-                vecs.append(v)
-            else:
-                n_rejects += 1
+        return A
 
-        # fill in the rest of the dependent rows
-        while len(vecs) < m:
-            v = get_vec()
-            if np.linalg.matrix_rank(np.vstack(vecs + [v])) > len(vecs):
-                n_rejects += 1
-                if n_rejects % 1000 == 0:
-                    print(n_rejects)
-            else:
-                vecs.append(v)
+    # Preempt this node
+    def preempt(self):
+        self._preempted = True
+        print("Node preempted. Stopping sending and multiplying...")
 
-        m = np.vstack(vecs)
-        return m.T if trans else m
+    # Restart this node after preemption
+    def restart(self):
+        self._preempted = False
+
+        print("Node restarted. Beginning sending and multiplying...")
+
+        # Restart the stopped threads
+        self._sendingThread = threading.Thread(target=self.sendingLoop, daemon=False)
+        self._sendingThread.start()
+        self._multThread = threading.Thread(target=self.multLoop, daemon=True)
+        self._multThread.start()
+
 
 
 if (__name__ == "__main__"):
