@@ -74,8 +74,8 @@ class Node:
             # if there is something to be sent, then send it
             if(not self._sendingQueue.empty()):
                 print("Sending...")
-                tup = self._sendingQueue.get()
-                client(tup[0],tup[1], "10.0.0.97")
+                data = self._sendingQueue.get()
+                client(data, "10.0.0.97")
             time.sleep(1)
 
     # These are the types of messages that could be sent and need to be handled:

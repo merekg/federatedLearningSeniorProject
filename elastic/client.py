@@ -15,10 +15,8 @@ isImported = True
 	takes the messageType vector, loss function, and aggip 
         Sends the data and closes the connection
 '''
-def client(messageType,fn,host):
+def client(data,host):
     
-    #messageType = messageType
-    data = types.SimpleNamespace(messageType=messageType,fn=fn) 		# Creates a new class 
     keep_running = True
     datasend = pickle.dumps(data)   			# Searalizes the object 'data' and returns the bytes of the object
     port = 65432    
