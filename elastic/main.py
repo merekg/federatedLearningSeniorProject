@@ -9,6 +9,13 @@ MIN_NODES = 1
 MIN_MATRIX_SIZE = 1
 MAX_MATRIX_SIZE = 10000
 
+# Enumerate the message types
+from enum import Enum
+class Message(Enum):
+    PREEMPT = 1
+    RESTART = 2
+    MATRICES = 3
+    PING = 4
 
 def main():
     # whenever new devices are added to the network, make sure that the IP addresses are added

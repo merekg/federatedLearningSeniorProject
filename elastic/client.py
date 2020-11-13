@@ -12,13 +12,13 @@ import types
 isImported = True
 '''
 	Used for node to send data back to the aggregator
-	takes the w vector, loss function, and aggip 
+	takes the messageType vector, loss function, and aggip 
         Sends the data and closes the connection
 '''
-def client(wout,fn,host):
+def client(messageType,fn,host):
     
-    #w = wout
-    data = types.SimpleNamespace(w=wout,fn=fn) 		# Creates a new class 
+    #messageType = messageType
+    data = types.SimpleNamespace(messageType=messageType,fn=fn) 		# Creates a new class 
     keep_running = True
     datasend = pickle.dumps(data)   			# Searalizes the object 'data' and returns the bytes of the object
     port = 65432    
@@ -59,7 +59,7 @@ def client(wout,fn,host):
 if not isImported:
 	host = '192.168.0.14' #!Wrong IP !
 	tau = 2
-	w = np.ones(784) #w = np.zeros(784)
+	messageType = np.ones(784) #messageType = np.zeros(784)
 	fn = np.zeros(tau)
-	w, fn = NodeSvm.NodeSVM(w,N) # run SVM on node, N is nodenum !Wrong Notation!
-	data = client(w,fn,host)
+	messageType, fn = NodeSvm.NodeSVM(messageType,N) # run SVM on node, N is nodenum !Wrong Notation!
+	data = client(messageType,fn,host)

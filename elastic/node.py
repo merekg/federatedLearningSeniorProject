@@ -5,6 +5,7 @@
 
 import queue
 import time
+import types
 import threading
 import sys
 import numpy as np
@@ -16,6 +17,14 @@ sys.path.append('../')
 
 # The max number of devices in the network
 MAX_DEVICES = 8
+
+# Enumerate the message types
+from enum import Enum
+class Message(Enum):
+    PREEMPT = 1
+    RESTART = 2
+    MATRICES = 3
+    PING = 4
 
 class Node:
 
@@ -69,21 +78,41 @@ class Node:
                 client(tup[0],tup[1], "10.0.0.97")
             time.sleep(1)
 
+    # These are the types of messages that could be sent and need to be handled:
+        # Preempt
+        # Restart
+        # Matrices
+        # ping
+        # shut down?
     def receivingLoop(self):
         # this thread stays alive the whole time, even if preempted. 
         while(True):
             item = server(str(self._ipAddr))
-            print("Updating based on recieved information...")
+            if(item.messageType == PING):
+                # Send a response to the master node
+                print("Received a ping from master. Sending pong...")
+                self._sendingQueue.put(types.SimpleNamespace(messageType = PING))
+            elif(item.messageType == PREEMPT):
+                print("Received a preempt from master. Calling preempt..")
+                self._preempt()
+            elif(item.messageType == RESTART):
+                print("Received a restart command from master. Calling restart...")
+                self._restart()
+            elif(item.messageType == MATRICES):
+                print("Received matrix message.")
 
-            # For now, just assume that the first column is the x array and the rest is the matrix
-            print("Shape of received item:")
-            print(np.array(item).shape)
-            print("Item:")
-            print(item)
-            self._x = item[:,0]
-            self._matrix = item[:,1:]
-            self._matrixReady = True
-            time.sleep(1)
+                print("Updating based on recieved information...")
+
+                # For now, just assume that the first column is the x array and the rest is the matrix
+                print("Shape of received item:")
+                print(np.array(item).shape)
+                print("Item:")
+                print(item)
+                self._x = item[:,0]
+                self._matrix = item[:,1:]
+                self._matrixReady = True
+            else:
+                print("WARNING: Received an unknown command from master node.")
 
     def multLoop(self):
         while(not self._preempted):
@@ -92,7 +121,7 @@ class Node:
             if(self._matrixReady):
 
                 # Compute the matrix multiplication, then add it to the sending queue
-                self._sendingQueue.put(np.matmul(self._x,self._matrix))
+                self._sendingQueue.put(types.SimpleNamespace(messageType = MATRICES, data = np.matmul(self._x,self._matrix)))
                 print("Matrix multiplication complete.")
                 self._matrixReady = False
             else:
