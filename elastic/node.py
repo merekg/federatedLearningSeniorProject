@@ -88,17 +88,17 @@ class Node:
         # this thread stays alive the whole time, even if preempted. 
         while(True):
             item = server(str(self._ipAddr))
-            if(item.messageType == PING):
+            if(item.messageType == Message.PING):
                 # Send a response to the master node
                 print("Received a ping from master. Sending pong...")
-                self._sendingQueue.put(types.SimpleNamespace(messageType = PING))
-            elif(item.messageType == PREEMPT):
+                self._sendingQueue.put(types.SimpleNamespace(messageType = Message.PING))
+            elif(item.messageType == Message.PREEMPT):
                 print("Received a preempt from master. Calling preempt..")
                 self._preempt()
-            elif(item.messageType == RESTART):
+            elif(item.messageType == Message.RESTART):
                 print("Received a restart command from master. Calling restart...")
                 self._restart()
-            elif(item.messageType == MATRICES):
+            elif(item.messageType == Message.MATRICES):
                 print("Received matrix message.")
 
                 print("Updating based on recieved information...")

@@ -29,7 +29,7 @@ def server(host):
         print('Received Data from master node')
         conn.close
         
-        if len(rec) != 0:
+        #if len(rec) != 0:
             keep_running = False
             
     return rec

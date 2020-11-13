@@ -54,9 +54,13 @@ def main():
     for i in range(0,nodes):
         print("Sending matrix of size " + str(len(A[:,:node._partitions[i]])) + " to the node at " + IP_ADDRESSES[i])
         if i == 0:
-            client1 = master_client(IP_ADDRESSES[i], np.concatenate((x,A[:,:node._partitions[i]]),axis=1))
+            data = np.concatenate((x,A[:,:node._partitions[i]]),axis=1)
+            msg = types.SimpleNamespace(messageType = Message.MATRICES, data = data)
+            client1 = master_client(IP_ADDRESSES[i], msg)
         else:
-            client1 = master_client(IP_ADDRESSES[i], np.concatenate((x,A[:,node._partitions[i-1]:node._partitions[i]]),axis=1))
+            data = np.concatenate((x,A[:,node._partitions[i-1]:node._partitions[i]]),axis=1)
+            msg = types.SimpleNamespace(messageType = Message.MATRICES, data = data)
+            client1 = master_client(IP_ADDRESSES[i], msg)
 
     print("Sending complete!")
 
