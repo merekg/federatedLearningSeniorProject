@@ -4,29 +4,42 @@ from MasterServer import *
 from node import *
 import sys
 
+MAX_NODES = 6
+MIN_NODES = 1
+MIN_MATRIX_SIZE = 1
+MAX_MATRIX_SIZE = 10000
+
 
 def main():
+    # whenever new devices are added to the network, make sure that the IP addresses are added
     IP_ADDRESSES = ["10.0.0.176", "10.0.0.159"]
 
     # Check that the user gave the correct number of inputs
-    if(len(sys.argv)!=3):
-        print("USE: main <number of requested nodes> <recovery threshold>")
+    if(len(sys.argv)!=4):
+        print("USE: main <number of requested nodes> <recovery threshold> <matrix size>")
         return
 
     nodes = int(sys.argv[1])
     recoveryThreshold = int(sys.argv[2])
+    matrixSize = int(sys.argv[3])
+
+    # check that the passed parameters are within the range we expected
+    assert nodes >= MIN_NODES and nodes <= MAX_NODES
+    assert recoveryThreshold >= MIN_NODES and recoveryThreshold <= nodes
+    assert matrixSize >= MIN_MATRIX_SIZE and matrixSize <= MAX_MATRIX_SIZE
 
     # Create a matrix and a vector to be multiplied
-    print("Generating a random matrix of size: [100,100]")
-    A = np.random.rand(100,100)
-    x = np.random.rand(100,1)
+    print("Generating a random matrix of size: " + str(matrixSize) + "x" + str(matrixSize) + "...")
+    A = np.random.rand(matrixSize, matrixSize)
+    x = np.random.rand(matrixSize,1)
 
-    # Split the matrix A into n parts using the node
-    # method
+    # Split the matrix A into n parts using the node method
     print("Splitting the matrix into " + str(recoveryThreshold) + " parts.")
     node = Node()
     node.addMatrix(A)
     node.matrixSplit(recoveryThreshold)
+
+    # Encode the data
 
     # Create an aggr_server to send 
     # then send the data to each device
@@ -44,6 +57,15 @@ def main():
     # Wait to hear a response
     print("Waiting for results...")
     serv = master_server("10.0.0.97",1)
+
+    # Reassemble the received data
+    print("reassembling received data...")
+
+    # Compare the result with the local computation to verify accuracy
+    print("Comparing results with locally computed multiplication to verify...")
+
+    # Test again with preemption
+    print("testing again with preemption...")
 
     print("Exiting...")
 
