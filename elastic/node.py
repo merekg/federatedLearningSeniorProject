@@ -105,11 +105,11 @@ class Node:
 
                 # For now, just assume that the first column is the x array and the rest is the matrix
                 print("Shape of received item:")
-                print(np.array(item).shape)
+                print(np.array(item.data).shape)
                 print("Item:")
-                print(item)
-                self._x = item[:,0]
-                self._matrix = item[:,1:]
+                print(item.data)
+                self._x = item.data[:,0]
+                self._matrix = item.data[:,1:]
                 self._matrixReady = True
             else:
                 print("WARNING: Received an unknown command from master node.")
