@@ -30,7 +30,7 @@ def server(host):
         conn.close
         
         #if len(rec) != 0:
-            keep_running = False
+        keep_running = False
             
     return rec
     s.close()    
