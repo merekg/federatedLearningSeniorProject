@@ -112,7 +112,7 @@ class Node:
                 self._matrix = item.data[:,1:]
                 self._matrixReady = True
             else:
-                print("WARNING: Received an unknown command from master node.")
+                print("WARNING: Received an unknown command from master node: " + str(item.messageType.name))
 
     def multLoop(self):
         while(not self._preempted):
