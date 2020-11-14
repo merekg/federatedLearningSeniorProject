@@ -139,7 +139,7 @@ class Node:
                 # Compute the matrix multiplication, then add it to the sending queue
                 print(self._matrix.shape)
                 print(self._x.shape)
-                self._sendingQueue.put(types.SimpleNamespace(messageType=Message.RESPONSE, deviceId=self._nodeID, data=np.matmul(self._x,self._matrix)))
+                self._sendingQueue.put(types.SimpleNamespace(messageType=Message.RESPONSE, deviceId=self._nodeID, data=np.matmul(self._x,np.transpose(self._matrix))))
                 print("Matrix multiplication complete.")
                 self._matrixReady = False
             else:
