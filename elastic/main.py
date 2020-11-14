@@ -10,12 +10,13 @@ MIN_MATRIX_SIZE = 1
 MAX_MATRIX_SIZE = 10000
 
 # Enumerate the message types
-from enum import Enum
-class Message(Enum):
+from enum import IntEnum
+class Message(IntEnum):
     PREEMPT = 1
     RESTART = 2
     MATRICES = 3
     PING = 4
+    PONG = 5
 
 def main():
     # whenever new devices are added to the network, make sure that the IP addresses are added
@@ -47,20 +48,22 @@ def main():
     node.matrixSplit(recoveryThreshold)
 
     # Encode the data
+    print("Encoding the data...")
+    _g = np.zeros((nodes,recoveryThreshold))
+    A_encoded = np.zeros((nodes,int(len(A)/nodes),len(A[0])))
+    for i in range(0,nodes):
+        _g[i] = node.generateMatrixOfRank(recoveryThreshold,1,recoveryThreshold)
+        A_encoded[i] = encode(A,_g)
+    
 
     # Create an aggr_server to send 
     # then send the data to each device
     print(node._partitions)
     for i in range(0,nodes):
-        print("Sending matrix of size " + str(len(A[:,:node._partitions[i]])) + " to the node at " + IP_ADDRESSES[i])
-        if i == 0:
-            data = np.concatenate((x,A[:,:node._partitions[i]]),axis=1)
-            msg = types.SimpleNamespace(messageType = Message.MATRICES, data = data)
-            client1 = master_client(IP_ADDRESSES[i], msg)
-        else:
-            data = np.concatenate((x,A[:,node._partitions[i-1]:node._partitions[i]]),axis=1)
-            msg = types.SimpleNamespace(messageType = Message.MATRICES, data = data)
-            client1 = master_client(IP_ADDRESSES[i], msg)
+        print("Sending matrix of size " + str(len(A_encoded[i]))+ " to the node at " + IP_ADDRESSES[i])
+        data = np.concatenate((np.transpose(x),A_encoded[i]))
+        msg = types.SimpleNamespace(messageType = Message.MATRICES, data = data)
+        client1 = master_client(IP_ADDRESSES[i], msg)
 
     print("Sending complete!")
 
@@ -71,6 +74,8 @@ def main():
 
     # Reassemble the received data
     print("reassembling received data...")
+    AB_encoded = serv.data
+    _h = 1 / (np.transpose(_g))
 
     # Compare the result with the local computation to verify accuracy
     print("Comparing results with locally computed multiplication to verify...")
@@ -80,6 +85,17 @@ def main():
 
     print("Exiting...")
 
+# Encode the matrix A with the vector g
+def encode(A, g):
+
+    n = len(g)
+    partitions = np.linspace(0,len(A),num=n+1,dtype=int)
+    sumA = np.zeros((int(len(A)/n), len(A[0])))
+    for i in range(0,n):
+        A[partitions[i]:partitions[i+1],:] = A[partitions[i]:partitions[i+1],:] * g[i]
+        sumA = sumA + A[partitions[i]:partitions[i+1],:]
+
+    return(sumA)
 
 if(__name__ == "__main__"):
     main()

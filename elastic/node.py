@@ -19,12 +19,13 @@ sys.path.append('../')
 MAX_DEVICES = 8
 
 # Enumerate the message types
-from enum import Enum
-class Message(Enum):
+from enum import IntEnum
+class Message(IntEnum):
     PREEMPT = 1
     RESTART = 2
     MATRICES = 3
     PING = 4
+    PONG = 5
 
 class Node:
 
@@ -85,13 +86,14 @@ class Node:
         # ping
         # shut down?
     def receivingLoop(self):
+        print("starting receiving loop")
         # this thread stays alive the whole time, even if preempted. 
         while(True):
             item = server(str(self._ipAddr))
             if(item.messageType == Message.PING):
                 # Send a response to the master node
                 print("Received a ping from master. Sending pong...")
-                self._sendingQueue.put(types.SimpleNamespace(messageType = Message.PING))
+                self._sendingQueue.put(types.SimpleNamespace(messageType = Message.PONG))
             elif(item.messageType == Message.PREEMPT):
                 print("Received a preempt from master. Calling preempt..")
                 self._preempt()
