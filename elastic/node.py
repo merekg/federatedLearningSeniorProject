@@ -215,6 +215,7 @@ class Node:
     def preempt(self):
         self._preempted = True
         print("Node preempted. Stopping sending and multiplying...")
+        time.sleep(1)
 
     # Restart this node after preemption
     def restart(self):
@@ -231,6 +232,7 @@ class Node:
     def quit(self):
         self._quit = True
         self._preempted = True
+        time.sleep(1)
 
 
 
