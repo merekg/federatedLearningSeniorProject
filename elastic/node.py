@@ -16,7 +16,7 @@ sys.path.append('../')
 #import node_client.py
 
 # The max number of devices in the network
-MAX_DEVICES = 8
+MAX_DEVICES = 6
 
 # Enumerate the message types
 from enum import IntEnum
@@ -44,18 +44,21 @@ class Node:
         self._matrixReady = False
 
         # Determine the node index based on the ip address.
-        #if(self._ipAddr == 100097):
-            #self._nodeID = 0; # desktop
-        #if(self._ipAddr == 1000236):
-            #self._nodeID = 1;
-        #if(self._ipAddr == 1000219):
-            #self._nodeID = 2;
+        if(self._ipAddr == "10.0.0.97"):
+            self._nodeID = 0; # desktop
+        if(self._ipAddr == "10.0.0.176"):
+            self._nodeID = 1;
+        if(self._ipAddr == "10.0.0.159"):
+            self._nodeID = 2;
 
         # This queue holds information that we need to send
         self._sendingQueue = queue.Queue(maxsize = 40)
 
         # Signal a preempt
         self._preempted = False;
+
+        # Hold the data from the nodes that have responded
+        self._response = np.empty((1,6), dtype=object)
 
         # Threads for sending and receiving information from the other nodes
         self._sendingThread = threading.Thread(target=self.sendingLoop, daemon=False)
@@ -115,6 +118,10 @@ class Node:
                 self._x = item.data[:,0]
                 self._matrix = item.data[:,1:]
                 self._matrixReady = True
+
+            elif(item.messageType == Message.RESPONSE):
+                print("Received response from worker.")
+                self._response[item.deviceId] = item.data
             else:
                 print("WARNING: Received an unknown command from master node: " + str(item.messageType.name))
 
@@ -125,7 +132,7 @@ class Node:
             if(self._matrixReady):
 
                 # Compute the matrix multiplication, then add it to the sending queue
-                self._sendingQueue.put(types.SimpleNamespace(messageType=Message.RESPONSE, data=np.matmul(self._x,self._matrix)))
+                self._sendingQueue.put(types.SimpleNamespace(messageType=Message.RESPONSE, deviceId=self._nodeID, data=np.matmul(self._x,self._matrix)))
                 print("Matrix multiplication complete.")
                 self._matrixReady = False
             else:
