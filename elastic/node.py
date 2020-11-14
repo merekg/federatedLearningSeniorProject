@@ -60,6 +60,7 @@ class Node:
 
         # Signal a preempt
         self._preempted = False;
+        self._quit = False;
 
         # Threads for sending and receiving information from the other nodes
         self._sendingThread = threading.Thread(target=self.sendingLoop, daemon=False)
@@ -84,6 +85,7 @@ class Node:
                 if(not self._ipAddr == "10.0.0.97"):
                     client(data, "10.0.0.97")
             time.sleep(1)
+        print("Sending thread exited successfully.")
 
     # These are the types of messages that could be sent and need to be handled:
         # Preempt
@@ -94,7 +96,7 @@ class Node:
     def receivingLoop(self):
         print("starting receiving loop")
         # this thread stays alive the whole time, even if preempted. 
-        while(True):
+        while(not self._quit):
             item = server(str(self._ipAddr))
             if(item.messageType == Message.PING):
                 # Send a response to the master node
@@ -140,6 +142,7 @@ class Node:
                 self._matrixReady = False
             else:
                 time.sleep(1)
+        print("Matrix multiplication thread exited successfully.")
 
     # This script will take a matrix and divide it into n parts.
     # It will make the parts as evenly sized as possible while still maintaining the rows and columns.
@@ -224,6 +227,10 @@ class Node:
         self._sendingThread.start()
         self._multThread = threading.Thread(target=self.multLoop, daemon=True)
         self._multThread.start()
+        
+    def quit(self):
+        self._quit = True
+        self._preempted = True
 
 
 

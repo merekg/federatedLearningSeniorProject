@@ -99,6 +99,7 @@ def main():
         client1 = master_client(IP_ADDRESSES[i], msg)
 
     print("Exiting...")
+    node._quit()
 
 # Encode the matrix A with the vector g
 def encode(A, g):
