@@ -115,7 +115,7 @@ class Node:
                 print(np.array(item.data).shape)
                 print("Item:")
                 print(item.data)
-                self._x = item.data[:,int(len(item.data/2))]
+                self._x = item.data[:int(len(item.data/2))]
                 self._matrix = item.data[int(len(item.data/2)):]
                 self._matrixReady = True
 
