@@ -54,11 +54,12 @@ class Node:
         # This queue holds information that we need to send
         self._sendingQueue = queue.Queue(maxsize = 40)
 
+        # hold the response data from one node
+        self._responseData = np.empty(1, dtype=object)
+        self._receivedResponse = np.zeros((6,1))
+
         # Signal a preempt
         self._preempted = False;
-
-        # Hold the data from the nodes that have responded
-        self._response = np.empty((1,6), dtype=object)
 
         # Threads for sending and receiving information from the other nodes
         self._sendingThread = threading.Thread(target=self.sendingLoop, daemon=False)
@@ -110,18 +111,20 @@ class Node:
 
                 print("Updating based on recieved information...")
 
-                # For now, just assume that the first column is the x array and the rest is the matrix
                 print("Shape of received item:")
                 print(np.array(item.data).shape)
                 print("Item:")
                 print(item.data)
-                self._x = item.data[:,0]
-                self._matrix = item.data[:,1:]
+                self._x = item.data[:,int(len(item.data/2))]
+                self._matrix = item.data[int(len(item.data/2)):]
                 self._matrixReady = True
 
             elif(item.messageType == Message.RESPONSE):
                 print("Received response from worker.")
-                self._response[item.deviceId] = item.data
+                print(item.data)
+                self._responseData = item.data
+                self._receivedResponse[item.deviceId] = 1
+                time.sleep(1)
             else:
                 print("WARNING: Received an unknown command from master node: " + str(item.messageType.name))
 

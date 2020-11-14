@@ -40,7 +40,7 @@ def main():
     # Create a matrix and a vector to be multiplied
     print("Generating a random matrix of size: " + str(matrixSize) + "x" + str(matrixSize) + "...")
     A = np.random.rand(matrixSize, matrixSize)
-    x = np.random.rand(matrixSize,1)
+    x = np.random.rand(matrixSize,matrixSize)
 
     # Split the matrix A into n parts using the node method
     print("Splitting the matrix into " + str(recoveryThreshold) + " parts.")
@@ -55,6 +55,11 @@ def main():
     for i in range(0,nodes):
         _g[i] = node.generateMatrixOfRank(recoveryThreshold,1,recoveryThreshold)
         A_encoded[i] = encode(A,_g)
+
+    _h = 1 / (np.transpose(_g))
+    x_encoded = np.zeros((nodes,int(len(A)/nodes),len(A[0])))
+    for i in range(0,nodes):
+        x_encoded[i] = encode(x,_h)
     
 
     # Create an aggr_server to send 
@@ -71,19 +76,27 @@ def main():
 
     # Wait to hear a response
     print("Waiting for results...")
-    #serv = master_server("10.0.0.97",1)
-    #print(serv.data)
+    # block unti we have signalled a response
+    while(np.sum(node._receivedResponse)==0):
+        time.sleep(.1)
+    AB_encoded = node._responseData
 
     # Reassemble the received data
     print("reassembling received data...")
-    AB_encoded = serv.data
     _h = 1 / (np.transpose(_g))
 
     # Compare the result with the local computation to verify accuracy
     print("Comparing results with locally computed multiplication to verify...")
+    assert AB_encoded == np.matmul(x,A)
 
     # Test again with preemption
     print("testing again with preemption...")
+    for i in range(0,nodes):
+        print("Sending a preempt request to the node at " + IP_ADDRESSES[i])
+        msg = types.SimpleNamespace(messageType = Message.PREEMPT)
+        client1 = master_client(IP_ADDRESSES[i], msg)
+        msg = types.SimpleNamespace(messageType = Message.RESTART)
+        client1 = master_client(IP_ADDRESSES[i], msg)
 
     print("Exiting...")
 
