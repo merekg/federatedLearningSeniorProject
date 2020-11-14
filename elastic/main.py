@@ -51,15 +51,16 @@ def main():
     # Encode the data
     print("Encoding the data...")
     _g = np.zeros((nodes,recoveryThreshold))
+    print("shape of g: " +str(_g.shape))
     A_encoded = np.zeros((nodes,int(len(A)/nodes),len(A[0])))
     for i in range(0,nodes):
         _g[i] = node.generateMatrixOfRank(recoveryThreshold,1,recoveryThreshold)
-        A_encoded[i] = encode(A,_g)
+        A_encoded[i] = encode(A,_g[i],nodes)
 
-    _h = 1 / (np.transpose(_g))
+    _h = 1 / _g
     x_encoded = np.zeros((nodes,int(len(A)/nodes),len(A[0])))
     for i in range(0,nodes):
-        x_encoded[i] = encode(x,_h)
+        x_encoded[i] = encode(x,_h[i],nodes)
     
 
     # Create an aggr_server to send 
@@ -102,12 +103,11 @@ def main():
     node.quit()
 
 # Encode the matrix A with the vector g
-def encode(A, g):
+def encode(A, g, n):
 
-    n = len(g)
     partitions = np.linspace(0,len(A),num=n+1,dtype=int)
     sumA = np.zeros((int(len(A)/n), len(A[0])))
-    for i in range(0,n):
+    for i in range(0,len(g)):
         A[partitions[i]:partitions[i+1],:] = A[partitions[i]:partitions[i+1],:] * g[i]
         sumA = sumA + A[partitions[i]:partitions[i+1],:]
 
