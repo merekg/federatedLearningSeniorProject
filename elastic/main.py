@@ -17,6 +17,7 @@ class Message(IntEnum):
     MATRICES = 3
     PING = 4
     PONG = 5
+    RESPONSE = 6
 
 def main():
     # whenever new devices are added to the network, make sure that the IP addresses are added
@@ -70,7 +71,8 @@ def main():
 
     # Wait to hear a response
     print("Waiting for results...")
-    serv = master_server("10.0.0.97",1)
+    #serv = master_server("10.0.0.97",1)
+    #print(serv.data)
 
     # Reassemble the received data
     print("reassembling received data...")

@@ -26,6 +26,7 @@ class Message(IntEnum):
     MATRICES = 3
     PING = 4
     PONG = 5
+    RESPONSE = 6
 
 class Node:
 
@@ -76,7 +77,8 @@ class Node:
             if(not self._sendingQueue.empty()):
                 print("Sending...")
                 data = self._sendingQueue.get()
-                client(data, "10.0.0.97")
+                if(not self._ipAddr == "10.0.0.97"):
+                    client(data, "10.0.0.97")
             time.sleep(1)
 
     # These are the types of messages that could be sent and need to be handled:
@@ -123,7 +125,7 @@ class Node:
             if(self._matrixReady):
 
                 # Compute the matrix multiplication, then add it to the sending queue
-                self._sendingQueue.put(np.matmul(self._x,self._matrix))
+                self._sendingQueue.put(types.SimpleNamespace(messageType=Message.RESPONSE, data=np.matmul(self._x,self._matrix)))
                 print("Matrix multiplication complete.")
                 self._matrixReady = False
             else:

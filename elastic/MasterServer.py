@@ -84,9 +84,7 @@ def read(conn, mask):
     conn.setblocking(0)
     
     arr = pickle.loads(datain)# recieved data
-    result.messageType = arr.messageType
-    print(result.messageType)
-    result.data[numconn,:] = arr.data
+    result = arr
     sel.unregister(conn)
     conn.close()
     
