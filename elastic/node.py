@@ -102,10 +102,10 @@ class Node:
                 self._sendingQueue.put(types.SimpleNamespace(messageType = Message.PONG))
             elif(item.messageType == Message.PREEMPT):
                 print("Received a preempt from master. Calling preempt..")
-                self._preempt()
+                self.preempt()
             elif(item.messageType == Message.RESTART):
                 print("Received a restart command from master. Calling restart...")
-                self._restart()
+                self.restart()
             elif(item.messageType == Message.MATRICES):
                 print("Received matrix message.")
 

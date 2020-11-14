@@ -87,7 +87,7 @@ def main():
 
     # Compare the result with the local computation to verify accuracy
     print("Comparing results with locally computed multiplication to verify...")
-    assert AB_encoded == np.matmul(x,A)
+    assert AB_encoded.all() == np.matmul(x,A).all()
 
     # Test again with preemption
     print("testing again with preemption...")
