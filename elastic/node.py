@@ -115,11 +115,8 @@ class Node:
                 print(np.array(item.data).shape)
                 print("Item:")
                 print(item.data)
-                print(len(item.data)/2
                 self._x = item.data[:int(len(item.data)/2),:]
-                print("size of x: " +str(self._x.shape))
                 self._matrix = item.data[int(len(item.data)/2):,:]
-                print("size of matrix: " +str(self._matrix.shape))
                 self._matrixReady = True
 
             elif(item.messageType == Message.RESPONSE):
