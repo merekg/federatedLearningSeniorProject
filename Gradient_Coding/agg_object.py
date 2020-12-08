@@ -7,6 +7,7 @@
 # 4. Updates global model (?)
 
 from matrix_b_fr import matrix_b_fr
+from matrix_b_cyc import matrix_b_cr
 from matrix_a import matrix_a
 from aggr_client_v1_3 import client
 from aggr_server import aggr_server as server
@@ -26,7 +27,9 @@ stragglers = ['192.168.0.30']
 
 class Agg:
     # Constructor
-    def __init__(self):
+    # fr = 1 creates b_mat using fr scheme
+    # fr = 0 creates b_mat using cr scheme
+    def __init__(self, fr=1):
 
         # This queue holds information that we need to send
         self._sendingQueue = queue.Queue(maxsize=40)
@@ -42,9 +45,11 @@ class Agg:
         # A specifies the linear combination to get back all gradients
         self._n = len(rp_addresses)
         self._s = len(stragglers)
-        b_mat = matrix_b_fr(self._n, self._s)
-        print("b_mat: \n", b_mat)
-
+        if fr == 1:
+            b_mat = matrix_b_fr(self._n, self._s)
+            print("b_mat: \n", b_mat)
+        else:
+            b_mat = matrix_b_cr(self._n, self._s, debug=0)
         # Generate some random linear data
         x, y = genData(1000, 25, 5)
         print(x)
@@ -76,7 +81,7 @@ class Agg:
             self._sendingQueue.put(self._matrix)
 
         # Code to decipher gradient coding
-        a_mat = matrix_a(b_mat, self._n, self._s)
+        a_mat = matrix_a(b_mat, self._n, self._s, debug=0)
         a_row = a_mat[rp_addresses.index(stragglers[0])]  # assumes there is only one straggler
         print("a_row: ", a_row)
 
