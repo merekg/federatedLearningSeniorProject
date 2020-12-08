@@ -1,0 +1,38 @@
+# This file is an explanation about the Gradient_Coding folder
+# It describes the project from a high level as well as a short explanation of the major files 
+# Additionally, the FL setup and use is also explained
+
+# HTC 12/08/20
+
+# Federated Learning system
+
+"""
+This folder is intended to be used on a network of Raspberry Pies (RPs).
+The files should be downloaded to the (RPs)and executed using << python3 __File Name__ >>
+IP addresses need to be updated on each inidividual RP in the node code file
+"""
+
+# Project Explanation
+
+"""
+This project is an implementation of the gradient coding schemes presented in Gradient Coding: Avoiding Stragglers in Synchronous Gradient
+Descent by R. Tandon, Q. Lei, et. al. 
+
+The project is foccussed on showing how linear combinations of data partitions can be leveraged to mitigate the effect of stragglers. 
+The project can be sorted into two main groups, corresponding to two different gradient coding schemes: Fractional Repetition and Cyclical Repetition.
+
+1. Fractional Repetition (FR) 
+    Worker nodes are divided into equal-sized groups. Data partitions are assigned equally and disjointly to worker nodes
+    
+    To run an FR experiment:
+      a. on each worker node
+        i. create a node object << python3 node_object.py >>
+      b. on the aggregator
+        i. create an agg object with FR matrix builder <<  >>
+
+2. Cyclical Repetition (CR)
+ a. on each worker node
+        i. create a node object << python3 node_object.py >>
+      b. on the aggregator
+        i. create an agg object with CR matrix builder <<  >>
+"""
