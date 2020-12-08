@@ -16,14 +16,25 @@ def matrix_a(b_mat, n, s):
     sub_list = list(itertools.combinations(n_list, length_subset))
     # Solve for Matrix A s.t. AB = 1 (f x k)
     f = m.comb(n, s)
-    a_mat = np.zeros(np.array([f, n]))
+    a_mat = np.zeros((f, n))
     for i in n_list:
-        a = np.zeros(np.array([1, n]))[0]
+        print("i: ", i)
+        a = np.zeros((1, n))[0]
         ones = np.ones(n)
+        print(np.asarray(sub_list[i]))
         rows_b = b_mat[np.asarray(sub_list[i])]
+        print("rows_b: \n", rows_b)
         rows_b_t = np.transpose(rows_b)
-        x = np.linalg.lstsq(rows_b_t, ones)
+        print(np.linalg.matrix_rank(rows_b))
+        print(np.linalg.matrix_rank(rows_b_t))
+        print(np.linalg.matrix_rank(ones))
+        print("rows_b trans: \n", rows_b_t)
+        print(np.shape(rows_b_t), np.shape(ones))
+        x = np.linalg.lstsq(rows_b_t, ones, rcond=None)
+        print("x: ", x)
+        print("rows_b_t @ x: \n", rows_b_t @ x[0])
         a[np.asarray(sub_list[i])] = x[0]
+        print("a: \n", a)
         a_mat[n - 1 - i] = a
 
     # print("a_mat: \n", a_mat)
