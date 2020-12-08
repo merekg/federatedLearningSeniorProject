@@ -6,7 +6,7 @@
 
 import numpy as np
 from matrix_a import *
-run_example = True
+run_example = False
 
 
 def matrix_b_fr(n=4, s=1):
