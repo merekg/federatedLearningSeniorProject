@@ -81,6 +81,7 @@ class Node:
             # if there is something to be sent, then send it
             if(not self._sendingQueue.empty()):
                 print("Sending...")
+                print("Time: " + str(time.time()))
                 data = self._sendingQueue.get()
                 if(not self._ipAddr == "10.0.0.97"):
                     client(data, "10.0.0.97")
@@ -110,6 +111,7 @@ class Node:
                 self.restart()
             elif(item.messageType == Message.MATRICES):
                 print("Received matrix message.")
+                print("Time: " + str(time.time()))
 
                 print("Updating based on recieved information...")
 
@@ -141,6 +143,7 @@ class Node:
                 print(self._x.shape)
                 self._sendingQueue.put(types.SimpleNamespace(messageType=Message.RESPONSE, deviceId=self._nodeID, data=np.matmul(self._x,np.transpose(self._matrix))))
                 print("Matrix multiplication complete.")
+                print("Time: " +str(time.time()))
                 self._matrixReady = False
             else:
                 time.sleep(1)
