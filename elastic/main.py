@@ -3,6 +3,7 @@ from MasterClient import *
 from MasterServer import *
 from node import *
 import sys
+import time
 
 MAX_NODES = 6
 MIN_NODES = 1
@@ -20,6 +21,8 @@ class Message(IntEnum):
     RESPONSE = 6
 
 def main():
+    print("Start time: " + str(time.time()))
+
     # whenever new devices are added to the network, make sure that the IP addresses are added
     IP_ADDRESSES = ["10.0.0.176", "10.0.0.159"]
 
@@ -42,6 +45,8 @@ def main():
     A = np.random.rand(matrixSize, matrixSize)
     x = np.random.rand(matrixSize,matrixSize)
 
+    print("Post setup time: " + str(time.time()))
+
     # Split the matrix A into n parts using the node method
     print("Splitting the matrix into " + str(recoveryThreshold) + " parts.")
     node = Node()
@@ -62,6 +67,7 @@ def main():
     for i in range(0,nodes):
         x_encoded[i] = encode(x,_h[i],nodes)
     
+    print("Post encode time: " + str(time.time()))
 
     # Create an aggr_server to send 
     # then send the data to each device
@@ -74,6 +80,7 @@ def main():
 
     print("Sending complete!")
 
+    print("Post sending time: " + str(time.time()))
 
     # Wait to hear a response
     print("Waiting for results...")
@@ -81,6 +88,8 @@ def main():
     while(np.sum(node._receivedResponse)==0):
         time.sleep(.1)
     AB_encoded = node._responseData
+
+    print("Post received time: " + str(time.time()))
 
     # Reassemble the received data
     print("reassembling received data...")
