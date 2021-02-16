@@ -1,20 +1,27 @@
-def simultaneous_power_iteration(A, k):
-    n, m = A.shape
-    Q = np.random.rand(n, k)
-    Q, _ = np.linalg.qr(Q)
-    Q_prev = Q
- 
-    for i in range(1000):
-        Z = A.dot(Q)
-        Q, R = np.linalg.qr(Z)
+# Power iteration
+# Author: MCG
 
-        # can use other stopping criteria as well 
-        err = ((Q - Q_prev) ** 2).sum()
-        if i % 10 == 0:
-            print(i, err)
+import numpy as np
 
-        Q_prev = Q
-        if err < 1e-3:
-            break
+N_DEVICES = 1
+RECOVERY_THRESHOLD = 1
 
-    return np.diag(R), Q
+# This function will do power iteration. It will call the functions in the Node class to perform the matrix multiplication.
+def powerIteration(matrix, nIterations):
+    v = np.random.rand(matrix.shape[1])
+
+    for _ in range(nIterations):
+        # Get the product using our algorithm
+        tempVector = np.dot(matrix, v)
+
+        norm = np.linalg.norm(tempVector)
+
+        # decode the vector
+        v = tempVector / norm
+        print(v)
+
+    return v
+
+if(__name__ == "__main__"):
+    v = powerIteration(np.array([[1, 2, 3],[1,4,9],[1,8,27]]),10)
+    print("Final result: " + str(v))
