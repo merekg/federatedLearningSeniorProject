@@ -24,7 +24,7 @@ def main():
     print("Start time: " + str(time.time()))
 
     # whenever new devices are added to the network, make sure that the IP addresses are added
-    IP_ADDRESSES = ["10.0.0.176", "10.0.0.159"]
+    IP_ADDRESSES = ["192.168.0.16", "10.0.0.159"]
 
     # Check that the user gave the correct number of inputs
     if(len(sys.argv)!=4):
